@@ -2,8 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { api } from "@/config/api";
-import { deleteGemiWithPassword } from "@/app/actions/gemi";
-import { createGemi, getGemiler, updateGemi } from "@/lib/api/gemi";
+import { validateDeletePassword } from "@/app/actions/gemi";
+import { createGemi, deleteGemi, getGemiler, updateGemi } from "@/lib/api/gemi";
 import { BeyannameEditModal } from "@/components/panel/BeyannameEditModal";
 import { Modal } from "@/components/panel/Modal";
 import { Button } from "@/components/ui/Button";
@@ -110,17 +110,23 @@ export default function GemiPage() {
     setDeletingInProgress(true);
     setDeleteError(null);
 
-    const result = await deleteGemiWithPassword(deleting.id, deletePassword);
+    const validation = await validateDeletePassword(deletePassword);
 
-    if (result.error) {
-      setDeleteError(result.error);
+    if (validation.error) {
+      setDeleteError(validation.error);
       setDeletingInProgress(false);
       return;
     }
 
-    closeDeleteModal();
-    setDeletingInProgress(false);
-    await load();
+    try {
+      await deleteGemi(deleting.id);
+      closeDeleteModal();
+      await load();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Silme başarısız.");
+    } finally {
+      setDeletingInProgress(false);
+    }
   }
 
   return (

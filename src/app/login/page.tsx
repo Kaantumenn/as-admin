@@ -114,7 +114,7 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const loginRes = await fetch("/external-api/auth/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -123,10 +123,29 @@ export default function LoginPage() {
         }),
       });
 
-      const data = (await res.json()) as { message?: string };
+      const loginData = (await loginRes.json()) as {
+        message?: string;
+        accessToken?: string;
+      };
 
-      if (!res.ok) {
-        setError(data.message || "Giriş başarısız.");
+      if (!loginRes.ok) {
+        setError(loginData.message || "Giriş başarısız.");
+        return;
+      }
+
+      if (!loginData.accessToken) {
+        setError("Giriş yanıtı geçersiz.");
+        return;
+      }
+
+      const sessionRes = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: loginData.accessToken }),
+      });
+
+      if (!sessionRes.ok) {
+        setError("Oturum oluşturulamadı.");
         return;
       }
 
