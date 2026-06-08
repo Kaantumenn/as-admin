@@ -2,11 +2,8 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  SESSION_COOKIE,
-  SESSION_VALUE,
-  checkCredentials,
-} from "@/lib/auth";
+import { loginAdmin } from "@/lib/api/auth";
+import { TOKEN_COOKIE } from "@/lib/auth";
 
 export async function login(
   _prevState: { error?: string } | undefined,
@@ -15,24 +12,26 @@ export async function login(
   const username = String(formData.get("username") ?? "");
   const password = String(formData.get("password") ?? "");
 
-  if (!checkCredentials(username, password)) {
+  try {
+    const { accessToken } = await loginAdmin(username, password);
+    const cookieStore = await cookies();
+
+    cookieStore.set(TOKEN_COOKIE, accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+  } catch {
     return { error: "Kullanıcı adı veya şifre hatalı." };
   }
-
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, SESSION_VALUE, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
 
   redirect("/");
 }
 
 export async function logout() {
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE);
+  cookieStore.delete(TOKEN_COOKIE);
   redirect("/login");
 }

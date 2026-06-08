@@ -1,13 +1,13 @@
-export const SESSION_COOKIE = "admin-session";
-export const SESSION_VALUE = "authenticated";
+export const TOKEN_COOKIE = "admin-token";
 
-export function checkCredentials(username: string, password: string) {
-  const adminUsername = process.env.ADMIN_USERNAME;
-  const adminPassword = process.env.ADMIN_PASSWORD;
+export type AuthUser = {
+  id: number;
+  username: string;
+  fullName: string;
+  role: string;
+};
 
-  if (!adminUsername || !adminPassword) {
-    return false;
-  }
-
-  return username === adminUsername && password === adminPassword;
-}
+export type LoginResponse = {
+  accessToken: string;
+  user: AuthUser;
+};

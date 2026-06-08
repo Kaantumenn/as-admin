@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { Logo } from "@/components/login/Logo";
+import { SidebarNav } from "@/components/panel/SidebarNav";
 import { PageBackground } from "@/components/ui/PageBackground";
-
-const navItems = [{ href: "/", label: "Ana Sayfa" }];
 
 export default function PanelLayout({
   children,
@@ -20,17 +18,7 @@ export default function PanelLayout({
             <Logo compact />
           </div>
 
-          <nav className="flex-1 space-y-1 p-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block rounded-xl px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-surface hover:text-white"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <SidebarNav />
 
           <div className="border-t border-border p-3">
             <form action={logout}>
