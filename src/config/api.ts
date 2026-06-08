@@ -1,7 +1,9 @@
-const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+import { getApiBaseUrl } from "@/lib/api/get-base-url";
 
 export const api = {
-  baseUrl,
+  get baseUrl() {
+    return getApiBaseUrl();
+  },
 
   auth: {
     login: "/auth/admin/login",
@@ -23,8 +25,13 @@ export const api = {
 } as const;
 
 export function apiUrl(path: string) {
+  const baseUrl = getApiBaseUrl();
+
   if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL tanımlı değil.");
+    throw new Error(
+      "API adresi tanımlı değil. API_URL veya NEXT_PUBLIC_API_URL ayarlayın.",
+    );
   }
+
   return `${baseUrl.replace(/\/$/, "")}${path}`;
 }

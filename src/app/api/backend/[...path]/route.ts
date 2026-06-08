@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getApiBaseUrl } from "@/lib/api/get-base-url";
 import { TOKEN_COOKIE } from "@/lib/auth";
-
-const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 async function proxy(
   request: NextRequest,
@@ -14,9 +13,11 @@ async function proxy(
     return NextResponse.json({ message: "Oturum bulunamadı." }, { status: 401 });
   }
 
+  const apiBase = getApiBaseUrl();
+
   if (!apiBase) {
     return NextResponse.json(
-      { message: "API adresi tanımlı değil." },
+      { message: "API adresi tanımlı değil. API_URL ayarlayın." },
       { status: 500 },
     );
   }

@@ -23,8 +23,11 @@ export async function login(
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
-  } catch {
-    return { error: "Kullanıcı adı veya şifre hatalı." };
+  } catch (err) {
+    return {
+      error:
+        err instanceof Error ? err.message : "Giriş başarısız. Tekrar deneyin.",
+    };
   }
 
   redirect("/");

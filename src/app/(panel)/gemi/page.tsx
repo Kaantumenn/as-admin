@@ -33,12 +33,6 @@ export default function GemiPage() {
   const [beyannameShip, setBeyannameShip] = useState<Gemi | null>(null);
 
   const load = useCallback(async () => {
-    if (!api.baseUrl) {
-      setLoading(false);
-      setError("API adresi tanımlı değil. NEXT_PUBLIC_API_URL ayarlayın.");
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
