@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { login } from "@/app/actions/auth";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/login/Logo";
 import { PageBackground } from "@/components/ui/PageBackground";
 
@@ -101,8 +101,43 @@ function LoginIcon() {
 }
 
 export default function LoginPage() {
-  const [state, formAction, pending] = useActionState(login, undefined);
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.get("username"),
+          password: formData.get("password"),
+        }),
+      });
+
+      const data = (await res.json()) as { message?: string };
+
+      if (!res.ok) {
+        setError(data.message || "Giriş başarısız.");
+        return;
+      }
+
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Bağlantı hatası. Lütfen tekrar deneyin.");
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
     <div className="relative flex min-h-screen flex-1 flex-col">
@@ -120,7 +155,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form action={formAction} className="mt-8 space-y-5">
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div>
                 <label
                   htmlFor="username"
@@ -181,8 +216,8 @@ export default function LoginPage() {
                 <span className="text-sm text-accent-light">Şifremi Unuttum?</span>
               </div>
 
-              {state?.error && (
-                <p className="text-center text-sm text-red-400">{state.error}</p>
+              {error && (
+                <p className="text-center text-sm text-red-400">{error}</p>
               )}
 
               <button

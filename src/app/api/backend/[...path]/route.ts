@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { getApiBaseUrl } from "@/lib/api/get-base-url";
+import { apiUrl } from "@/config/api";
+import { getDirectApiUrl } from "@/lib/api/get-base-url";
 import { TOKEN_COOKIE } from "@/lib/auth";
 
 async function proxy(
@@ -13,9 +14,7 @@ async function proxy(
     return NextResponse.json({ message: "Oturum bulunamadı." }, { status: 401 });
   }
 
-  const apiBase = getApiBaseUrl();
-
-  if (!apiBase) {
+  if (!getDirectApiUrl()) {
     return NextResponse.json(
       { message: "API adresi tanımlı değil. API_URL ayarlayın." },
       { status: 500 },
@@ -23,7 +22,7 @@ async function proxy(
   }
 
   const { path } = await context.params;
-  const targetUrl = `${apiBase.replace(/\/$/, "")}/${path.join("/")}${request.nextUrl.search}`;
+  const targetUrl = apiUrl(`/${path.join("/")}${request.nextUrl.search}`);
 
   const hasBody = !["GET", "HEAD"].includes(request.method);
   const body = hasBody ? await request.text() : undefined;

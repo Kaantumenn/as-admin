@@ -1,8 +1,10 @@
-import { getApiBaseUrl } from "@/lib/api/get-base-url";
+import { getDirectApiUrl } from "@/lib/api/get-base-url";
+
+export { apiUrl } from "@/lib/api/get-base-url";
 
 export const api = {
   get baseUrl() {
-    return getApiBaseUrl();
+    return getDirectApiUrl();
   },
 
   auth: {
@@ -23,15 +25,3 @@ export const api = {
     },
   },
 } as const;
-
-export function apiUrl(path: string) {
-  const baseUrl = getApiBaseUrl();
-
-  if (!baseUrl) {
-    throw new Error(
-      "API adresi tanımlı değil. API_URL veya NEXT_PUBLIC_API_URL ayarlayın.",
-    );
-  }
-
-  return `${baseUrl.replace(/\/$/, "")}${path}`;
-}
