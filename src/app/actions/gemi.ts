@@ -1,9 +1,13 @@
 "use server";
 
-export async function validateDeletePassword(password: string) {
-  const confirmPassword = process.env.DELETE_CONFIRM_PASSWORD;
+const DEFAULT_DELETE_PASSWORD = "Asas15*";
 
-  if (!confirmPassword || password !== confirmPassword) {
+export async function validateDeletePassword(password: string) {
+  const confirmPassword = (
+    process.env.DELETE_CONFIRM_PASSWORD ?? DEFAULT_DELETE_PASSWORD
+  ).trim();
+
+  if (password.trim() !== confirmPassword) {
     return { error: "Onay şifresi hatalı." };
   }
 
